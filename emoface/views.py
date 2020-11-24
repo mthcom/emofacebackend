@@ -46,7 +46,8 @@ def add_image(request, name, emotion):
         new_image = request.POST['image']
         new_thumb = request.POST['thumb']
         new_id = 1
-        images = os.listdir(os.path.join("emoface", "database", name, emotion)).sort()
+        images = os.listdir(os.path.join("emoface", "database", name, emotion))
+        images.sort()
         for n in images:
             if n[0] == '.':
                 continue
@@ -56,10 +57,11 @@ def add_image(request, name, emotion):
                 new_id += 1
             else:
                 break
-        with open(os.path.join("emoface", "database", name, emotion, new_id+".jpg"), "wb") as fh:
-            fh.write(new_image.decode('base64'))
-        with open(os.path.join("emoface", "database", name, emotion, new_id+"t.jpg"), "wb") as fh:
-            fh.write(new_thumb.decode('base64'))
+        with open(os.path.join("emoface", "database", name, emotion, str(new_id)+".jpg"), "wb") as fh:
+            fh.write(base64.b64decode(new_image))
+        with open(os.path.join("emoface", "database", name, emotion, str(new_id)+"t.jpg"), "wb") as fh:
+            fh.write(base64.b64decode(new_thumb))
+        return HttpResponse("success")
 
 def delete_image(request, name, emotion):
     if request.method == 'POST':
