@@ -117,6 +117,7 @@ def emotions(request, name, emotion):
 
 def new_avatar(request):
     if request.method == 'POST':
+        new_avatar_thumb = request.POST['thumb']
         new_avatar_name = request.POST['name']
         new_avatar_name = new_avatar_name.strip('.')
         new_avatar_name = new_avatar_name.lower()
@@ -125,6 +126,8 @@ def new_avatar(request):
             if n.lower() == new_avatar_name:
                 return HttpResponse("avatar name exists")
         copy_tree(os.path.join("emoface", "default_avatar"), os.path.join("emoface", "database",new_avatar_name))
+        with open(os.path.join("emoface", "database", new_avatar_name, "thumb.jpg"), "wb") as fh:
+            fh.write(base64.b64decode(new_avatar_thumb))
     return HttpResponse("success")
 
 def static_video(request):
