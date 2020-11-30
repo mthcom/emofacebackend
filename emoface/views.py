@@ -136,7 +136,6 @@ def new_avatar(request):
     return HttpResponse("success")
 
 def static_video(request):
-    detector.stop_camera()
     with open(os.path.join("emoface", "database", ".default"), "r") as f:
         avatar_name = f.readline()
     with open(os.path.join("emoface", "database", avatar_name, ".default"), "r") as f:
