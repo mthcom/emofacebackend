@@ -10,8 +10,11 @@ from distutils.dir_util import copy_tree
 from shutil import copyfile
 
 import os
-
 import base64
+
+from emoface.emotion import Emotion
+
+detector = Emotion()
 
 def index(request): #return all the names
     names = os.listdir('emoface/database')
@@ -68,10 +71,16 @@ def delete_image(request, name, emotion):
         name = name.lower()
         emotion = emotion.lower()
         image_id = request.POST['id']
-        with open(os.path.join("emoface", "database", name, emotion, ".default"), "r") as default_file:
-            default_emotion = default_file.readline()
-        os.remove(os.path.join("emoface", "database", name, emotion, image_id + ".jpg"))
-        os.remove(os.path.join("emoface", "database", name, emotion, image_id + "t.jpg"))
+        try:
+        	with open(os.path.join("emoface", "database", name, emotion, ".default"), "r") as default_file:
+	            default_emotion = default_file.readline()
+        except FileNotFoundError as e:
+        	return HttpResponse("filenot found")
+        try:
+        	os.remove(os.path.join("emoface", "database", name, emotion, image_id + ".jpg"))
+	        os.remove(os.path.join("emoface", "database", name, emotion, image_id + "t.jpg"))
+        except FileNotFoundError as e:
+        	return HttpResponse("filenot found")
         if default_emotion == image_id:
             print("deleting")
             with open(os.path.join("emoface", "database", name, emotion, ".default"), "w") as default_file:
@@ -131,6 +140,7 @@ def new_avatar(request):
     return HttpResponse("success")
 
 def static_video(request):
+    detector.stop_camera()
     with open(os.path.join("emoface", "database", ".default"), "r") as f:
         avatar_name = f.readline()
     with open(os.path.join("emoface", "database", avatar_name, ".default"), "r") as f:
@@ -140,3 +150,17 @@ def static_video(request):
     
     with open(os.path.join("emoface", "database", avatar_name, emotion, image_id + ".jpg"), "rb") as f:
         return HttpResponse(f.read(), content_type="image/jpeg")
+
+def dynamic_video(request):
+    detector.start_camera()
+
+    emotion = detector.detect()
+
+    with open(os.path.join("emoface", "database", ".default"), "r") as f:
+        avatar_name = f.readline()
+    with open(os.path.join("emoface", "database", avatar_name, emotion, ".default"), "r") as f:
+        image_id = f.readline()
+
+    with open(os.path.join("emoface", "database", avatar_name, emotion, image_id + ".jpg"), "rb") as f:
+        return HttpResponse(f.read(), content_type="image/jpeg")
+    return HttpResponse("file not found")
