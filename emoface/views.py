@@ -12,10 +12,6 @@ from shutil import copyfile
 import os
 import base64
 
-from emoface.emotion import Emotion
-
-detector = Emotion()
-
 def index(request): #return all the names
     names = os.listdir('emoface/database')
     if request.method == 'POST':
@@ -150,17 +146,3 @@ def static_video(request):
     
     with open(os.path.join("emoface", "database", avatar_name, emotion, image_id + ".jpg"), "rb") as f:
         return HttpResponse(f.read(), content_type="image/jpeg")
-
-def dynamic_video(request):
-    detector.start_camera()
-
-    emotion = detector.detect()
-
-    with open(os.path.join("emoface", "database", ".default"), "r") as f:
-        avatar_name = f.readline()
-    with open(os.path.join("emoface", "database", avatar_name, emotion, ".default"), "r") as f:
-        image_id = f.readline()
-
-    with open(os.path.join("emoface", "database", avatar_name, emotion, image_id + ".jpg"), "rb") as f:
-        return HttpResponse(f.read(), content_type="image/jpeg")
-    return HttpResponse("file not found")

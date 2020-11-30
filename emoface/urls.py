@@ -9,5 +9,4 @@ urlpatterns = [
     path('add/<str:name>/<str:emotion>', views.add_image, name='add_image'),
     path('new_avatar', views.new_avatar, name='new_avatar'),
     path('video', views.static_video, name='static_video'),
-    path('realtime_video', views.dynamic_video, name='realtime_video'),
 ]
